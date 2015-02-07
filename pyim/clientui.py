@@ -1,5 +1,7 @@
+from sys import *
+
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
 from client import *
@@ -28,6 +30,7 @@ class ClientUI(QWidget):
         self.text = QTextEdit()
         self.inputText = QLineEdit()
         self.inputText.setPlaceholderText("Enter your message here")
+        self.inputText.editingFinished.connect(self.handleInput)
         
         #add the components
         top = QFrame()
@@ -73,6 +76,13 @@ class ClientUI(QWidget):
         port = int(portTxt)
         self.client.connect(ip, port, name)
         print("Connected to", ip + ":" + str(port))
+    
+    def handleInput(self):
+        text = self.inputText.getText()
+        
+        if text == "": return
+        
+        self.inputText.setText("")
     
     def closeEvent(self, event):
         event.accept()

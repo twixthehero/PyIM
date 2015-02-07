@@ -65,7 +65,7 @@ class Client:
                 print("Socket error. Closing connection")
                 self.connected = False
             elif namePacket[0] == 2:
-                self.name = namePacket[1:].decode("utf-8")
+                self.name = namePacket[3:].decode("utf-8")
             
             self.socket.settimeout(None)
             
@@ -87,24 +87,26 @@ class Client:
 
     def handle_packet(self, packet):
         flag = packet[0]
-        data = packet[1:]
+        src = packet[1:2]
+        dst = packet[2:3]
+        data = packet[3:]
         
         if flag == 1:
             print(self.name + ">", data.decode("utf-8"))
-            self.server.broadcast(MSG_FLAG + self.get_id() + DATA_FLAG + data)
+            self.server.broadcast(ID_MSG + self.get_id() + b"\0" + data)
             return True
         elif flag == 2:
             print(self.name, "set new name", end=" ")
             self.name = data.decode("utf-8")
             print(self.name)
-            self.server.broadcast(NAME_FLAG + self.get_id() + DATA_FLAG + data)
+            self.server.broadcast(ID_NAME + self.get_id() + b"\0" + data)
             return True
         else:
             print("Unknown packet received")
             return False
     
     def get_id(self):
-        return ID_FLAG + str(self.id).encode("utf-8")
+        return str(self.id).encode("utf-8")
 
 if __name__ == "__main__":
     server = Server()
